@@ -54,10 +54,6 @@ S3Storage.prototype._handleFile = function(req, file, cb) {
     var s3options = self.options.s3;
     s3options.ContentType = contentType;
     var outStream = self.s3fs.createWriteStream(filePath, s3options);
-    gm(file.stream)
-      .resize(self.options.gm.width , self.options.gm.height , self.options.gm.options)
-      .stream(self.options.gm.format || DEFAULT_FORMAT)
-      .pipe(outStream);
     outStream.on('error', cb);
     outStream.on('finish', function() {
       cb(null, {
@@ -66,6 +62,7 @@ S3Storage.prototype._handleFile = function(req, file, cb) {
         location: 'https://' + self.options.bucket + '.s3.amazonaws.com/' + filePath
       });
     });
+    file.stream.pipe(outStream);
   });
 };
 
